@@ -1,0 +1,21 @@
+app.get('/createApiKey/custom', (req, res) => {
+  const apiKey = req.query.key;
+
+  if (!apiKey) {
+    return res.status(400).json({ error: 'Thiếu thông tin key.' });
+  }
+
+  if (apiKeys[apiKey]) {
+    return res.status(400).json({ error: 'API key đã tồn tại.' });
+  }
+
+  try {
+    createApiKey(apiKey, res);
+
+    console.log(`[Endpoint]: /createApiKey/custom - [Status]: 200 - API Key Created`);
+
+  } catch (error) {
+    console.error('Lỗi khi tạo API key:', error);
+    res.status(500).json({ error: 'Đã xảy ra lỗi, vui lòng thử lại sau.' });
+  }
+});

@@ -1,0 +1,19 @@
+morgan.token('date', () => new Date().toLocaleString());
+morgan.token('client-ip', (req) => req.headers['x-forwarded-for'] || req.connection.remoteAddress);
+
+app.use(morgan('[:date] ":method :url" :status - IP: :client-ip', { stream: logStream }));
+
+// Middleware for authenticating API keys
+function authenticateAPIKey(req, res, next) {
+  const apiKey = req.header('X-API-Key') || req.query.api_key;
+
+  if (apiKey && apiKeys[apiKey]) {
+    req.apiKey = apiKey;
+    req.apiDataFile = apiKeys[apiKey].file;
+    next();
+  } else {
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    console.log(`[ApiKeys]: - [Status]: 401 - Unauthorized - IP: ${ip}`);
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+}
